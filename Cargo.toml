@@ -1,0 +1,10 @@
+[package]
+name = "timely-numa"
+version = "0.1.0"
+authors = ["Andrea Lattuada <andrea.lattuada@inf.ethz.ch>"]
+
+[dependencies]
+getopts = { version = "0.2.14" } # , optional = true}
+timely = { git = "https://github.com/utaal/timely-dataflow", branch = "thread-spawn-hook" }
+# hwloc = "^0.5"
+libc = "*"
