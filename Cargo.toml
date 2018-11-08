@@ -4,7 +4,8 @@ version = "0.1.0"
 authors = ["Andrea Lattuada <andrea.lattuada@inf.ethz.ch>"]
 
 [dependencies]
-getopts = { version = "0.2.14" } # , optional = true}
-timely_communication = { git = "https://github.com/utaal/timely-dataflow", branch = "thread-spawn-hook" }
-timely = { git = "https://github.com/utaal/timely-dataflow", branch = "thread-spawn-hook" }
+getopts = { version = "0.2.14" }
+timely_logging = { git = "https://github.com/frankmcsherry/timely-dataflow" }
+timely_communication = { git = "https://github.com/frankmcsherry/timely-dataflow" }
+timely = { git = "https://github.com/frankmcsherry/timely-dataflow" }
 libc = "^0.2"

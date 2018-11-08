@@ -6,7 +6,7 @@ use timely::dataflow::{InputHandle, ProbeHandle};
 use timely::dataflow::operators::{Input, Exchange, Inspect, Probe};
 
 fn main() {
-    ::timely_numa::execute::execute_from_args(std::env::args(), |worker| {
+    ::timely_affinity::execute::execute_from_args(std::env::args(), |worker| {
 
         let index = worker.index();
         let mut input = InputHandle::new();

@@ -4,8 +4,6 @@ Affinity-aware `execute` for timely dataflow, in linux.
 Currently requires a forked `timely_communication`, in your `Cargo.toml`:
 
 ```
-timely_communication = { git = "https://github.com/utaal/timely-dataflow", branch = "thread-spawn-hook" }
-timely = { git = "https://github.com/utaal/timely-dataflow", branch = "thread-spawn-hook" }
 timely_affinity = { git = "https://github.com/utaal/timely-affinity" }
 ```
 
@@ -25,3 +23,5 @@ hwloc-bind node:1 -- ./target/debug/examples/hello -n 2 -p 1 -w 2
 
 Worker 0 and 1 end up on cpus 0 and 1, respectively. Worker 2 and 3 (second process) end up on cpus 4 and 5, respectively.
 The first process' comm threads share cores 2 and 3, and the second process' comm threads share cores 6 and 7.
+
+Don't forget to ensure SMT (hyper-threading) is disabled or hyper-threads are excluded in the affinity (e.g. with `hwloc-bind ~pu:40-79` if cpus 40-79 are hyper-threads).
