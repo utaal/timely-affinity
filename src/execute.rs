@@ -30,27 +30,19 @@ where
         Configuration::Cluster { threads, ref mut spawn_fn, .. } => {
             let comm_core_ids = ::std::sync::Arc::new(core_ids.split_off(threads));
 
-            *spawn_fn = Box::new(move |index, sender, _, loop_fn| {
-                let comm_core_ids = comm_core_ids.clone();
+            *spawn_fn = Box::new(move |_, _, _, loop_fn| {
+                unsafe {
+                    let mut comm_cpuset = ::std::mem::zeroed::<::libc::cpu_set_t>();
+                    eprintln!("comm core ids = {:?}", comm_core_ids);
+                    ::libc::CPU_ZERO(&mut comm_cpuset);
+                    for id in comm_core_ids.iter() {
+                        ::libc::CPU_SET(*id, &mut comm_cpuset);
+                    }
 
-                ::std::thread::Builder::new()
-                    .name(
-                        if sender { format!("send thread {}", index) }
-                        else { format!("recv thread {}", index) })
-                    .spawn(move || {
-                        unsafe {
-                            let mut comm_cpuset = ::std::mem::zeroed::<::libc::cpu_set_t>();
-                            eprintln!("comm core ids = {:?}", comm_core_ids);
-                            ::libc::CPU_ZERO(&mut comm_cpuset);
-                            for id in comm_core_ids.iter() {
-                                ::libc::CPU_SET(*id, &mut comm_cpuset);
-                            }
+                    ::libc::sched_setaffinity(0, ::std::mem::size_of::<::libc::cpu_set_t>(), &comm_cpuset);
+                }
 
-                            ::libc::sched_setaffinity(0, ::std::mem::size_of::<::libc::cpu_set_t>(), &comm_cpuset);
-                        }
-
-                        loop_fn.start()
-                    })
+                loop_fn.start()
             });
 
             eprintln!("core ids: {:?}", core_ids);
