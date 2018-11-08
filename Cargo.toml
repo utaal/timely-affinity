@@ -1,5 +1,5 @@
 [package]
-name = "timely-numa"
+name = "timely-affinity"
 version = "0.1.0"
 authors = ["Andrea Lattuada <andrea.lattuada@inf.ethz.ch>"]
 

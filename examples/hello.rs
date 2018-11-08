@@ -1,6 +1,6 @@
 extern crate libc;
 extern crate timely;
-extern crate timely_numa;
+extern crate timely_affinity;
 
 use timely::dataflow::{InputHandle, ProbeHandle};
 use timely::dataflow::operators::{Input, Exchange, Inspect, Probe};
