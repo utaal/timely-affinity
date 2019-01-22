@@ -191,7 +191,7 @@ pub fn execute_from<I, A, T, F>(iter: I, builders: Vec<A>, others: Box<::std::an
         }
         core_ids
     };
-    let mut config = try!(Configurgation::from_args(iter));
+    let mut config = try!(Configuration::from_args(iter));
     let worker_core_ids = ::std::sync::Arc::new(match config {
         Configuration::Cluster { ref threads, ref process, ref addresses, ref mut spawn_fn, .. } => {
             let comm_core_ids = ::std::sync::Arc::new(core_ids.split_off(*threads));

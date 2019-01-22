@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use std::any::Any;
 
-use timely_communication::allocator::{AllocateBuilder, Thread, Process, Generic, GenericBuilder};
+use timely_communication::allocator::{AllocateBuilder, Process, Generic, GenericBuilder};
 use timely_communication::allocator::thread::ThreadBuilder;
 use allocator::zero_copy::initialize_networking;
 

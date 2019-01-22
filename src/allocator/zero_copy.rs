@@ -1,7 +1,6 @@
 //! Network initialization.
 
 use std::sync::Arc;
-use timely_communication::allocator::Process;
 use timely_communication::networking::create_sockets;
 use timely_communication::allocator::zero_copy::bytes_exchange::{MergeQueue, Signal};
 use timely_communication::allocator::zero_copy::tcp::{send_loop, recv_loop};
