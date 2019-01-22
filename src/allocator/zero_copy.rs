@@ -6,6 +6,7 @@ use timely_communication::networking::create_sockets;
 use timely_communication::allocator::zero_copy::bytes_exchange::{MergeQueue, Signal};
 use timely_communication::allocator::zero_copy::tcp::{send_loop, recv_loop};
 use timely_communication::allocator::zero_copy::allocator::{TcpBuilder, new_vector};
+use timely_communication::allocator::process::ProcessBuilder;
 
 /// Join handles for send and receive threads.
 ///
@@ -105,9 +106,7 @@ pub fn initialize_networking(
     noisy: bool,
     spawn_fn: Box<Fn(/* index: */ usize, /* sender: */ bool, /* remote: */ Option<usize>, Loop)->()+Send+Sync>,
     log_sender: Box<Fn(CommunicationSetup)->Option<Logger<CommunicationEvent, CommunicationSetup>>+Send+Sync>)
--> ::std::io::Result<(Vec<TcpBuilder<Process>>, CommsGuard)>
-// where
-//     F: Fn(CommunicationSetup)->Option<Logger<CommunicationEvent>>+Send+Sync+'static,
+-> ::std::io::Result<(Vec<TcpBuilder<ProcessBuilder>>, CommsGuard)>
 {
     let log_sender = Arc::new(log_sender);
     let processes = addresses.len();
@@ -133,20 +132,19 @@ pub fn initialize_networking(
             {
                 let log_sender = log_sender.clone();
                 let stream = stream.try_clone()?;
-
-                let spawn_fn = spawn_fn.clone();
                 let join_guard =
-                    ::std::thread::Builder::new()
-                        .name(format!("send thread {}", index))
-                        .spawn(move || spawn_fn(my_index, true, Some(index), Loop {
-                            threads,
-                            my_index,
-                            send_or_recv: SendOrRecv::Send(signal),
-                            remote: index,
-                            stream,
-                            remote_sendrecv: remote_recv,
-                            log_sender,
-                        }))?;
+                ::std::thread::Builder::new()
+                    .name(format!("send thread {}", index))
+                    .spawn(move || {
+
+                        let logger = log_sender(CommunicationSetup {
+                            process: my_index,
+                            sender: true,
+                            remote: Some(index),
+                        });
+
+                        send_loop(stream, remote_recv, signal, my_index, index, logger);
+                    })?;
 
                 send_guards.push(join_guard);
             }
@@ -157,24 +155,23 @@ pub fn initialize_networking(
                 // let remote_sends = remote_sends.clone();
                 let log_sender = log_sender.clone();
                 let stream = stream.try_clone()?;
-                let spawn_fn = spawn_fn.clone();
                 let join_guard =
-                    ::std::thread::Builder::new()
-                        .name(format!("recv thread {}", index))
-                        .spawn(move || spawn_fn(my_index, false, Some(index), Loop {
-                            threads,
-                            my_index,
-                            send_or_recv: SendOrRecv::Recv,
-                            remote: index,
-                            stream,
-                            remote_sendrecv: remote_send,
-                            log_sender,
-                        }))?;
+                ::std::thread::Builder::new()
+                    .name(format!("recv thread {}", index))
+                    .spawn(move || {
+                        let logger = log_sender(CommunicationSetup {
+                            process: my_index,
+                            sender: false,
+                            remote: Some(index),
+                        });
+                        recv_loop(stream, remote_send, threads * my_index, my_index, index, logger);
+                    })?;
 
                 recv_guards.push(join_guard);
             }
 
         }
+
     }
 
     Ok((builders, CommsGuard { send_guards, recv_guards }))
