@@ -101,7 +101,10 @@ where
     })
 }
 
-pub fn execute_from<I, A, T, F>(iter: I, builders: Vec<A>, others: Box<::std::any::Any>, func: F) -> Result<WorkerGuards<T>,String>
+// Mirrors timely's execute_from. An additional parameter (config) is needed because we need to
+// know what's the configuration in order to eventually pin communication threads
+pub fn execute_from<I, A, T, F>(iter: I, builders: Vec<A>, others: Box<::std::any::Any>, func: F)
+    -> Result<WorkerGuards<T>,String>
     where
         I: Iterator<Item=String>,
         A: AllocateBuilder+'static,
