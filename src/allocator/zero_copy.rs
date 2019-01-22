@@ -132,6 +132,7 @@ pub fn initialize_networking(
             {
                 let log_sender = log_sender.clone();
                 let stream = stream.try_clone()?;
+                let spawn_fn = spawn_fn.clone();
                 let join_guard =
                 ::std::thread::Builder::new()
                     .name(format!("send thread {}", index))
@@ -156,6 +157,7 @@ pub fn initialize_networking(
                 // let remote_sends = remote_sends.clone();
                 let log_sender = log_sender.clone();
                 let stream = stream.try_clone()?;
+                let spawn_fn = spawn_fn.clone();
                 let join_guard =
                 ::std::thread::Builder::new()
                     .name(format!("recv thread {}", index))
