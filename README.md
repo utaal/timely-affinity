@@ -4,7 +4,7 @@ Affinity-aware `execute` for timely dataflow, in linux.
 Currently requires a forked `timely_communication`, in your `Cargo.toml`:
 
 ```
-timely_affinity = { git = "https://github.com/utaal/timely-affinity" }
+timely-affinity = { git = "https://github.com/utaal/timely-affinity" }
 ```
 
 For a process, given the process' affinity:
