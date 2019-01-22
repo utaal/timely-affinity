@@ -136,14 +136,15 @@ pub fn initialize_networking(
                 ::std::thread::Builder::new()
                     .name(format!("send thread {}", index))
                     .spawn(move || {
-
-                        let logger = log_sender(CommunicationSetup {
-                            process: my_index,
-                            sender: true,
-                            remote: Some(index),
-                        });
-
-                        send_loop(stream, remote_recv, signal, my_index, index, logger);
+                        spawn_fn(my_index, true, Some(index), Loop {
+                            threads,
+                            my_index,
+                            send_or_recv: SendOrRecv::Send(signal),
+                            remote: index,
+                            stream,
+                            remote_sendrecv: remote_recv,
+                            log_sender,
+                        })
                     })?;
 
                 send_guards.push(join_guard);
@@ -159,12 +160,15 @@ pub fn initialize_networking(
                 ::std::thread::Builder::new()
                     .name(format!("recv thread {}", index))
                     .spawn(move || {
-                        let logger = log_sender(CommunicationSetup {
-                            process: my_index,
-                            sender: false,
-                            remote: Some(index),
-                        });
-                        recv_loop(stream, remote_send, threads * my_index, my_index, index, logger);
+                        spawn_fn(my_index, false, Some(index), Loop {
+                            threads,
+                            my_index,
+                            send_or_recv: SendOrRecv::Recv,
+                            remote: index,
+                            stream,
+                            remote_sendrecv: remote_send,
+                            log_sender,
+                        })
                     })?;
 
                 recv_guards.push(join_guard);
