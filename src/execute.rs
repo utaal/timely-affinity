@@ -103,15 +103,13 @@ where
 
 // Mirrors timely's execute_from. An additional parameter (config) is needed because we need to
 // know what's the configuration in order to eventually pin communication threads
-pub fn execute_from<I, A, T, F>(iter: I, builders: Vec<A>, others: Box<::std::any::Any>, func: F)
+pub fn execute_from<A, T, F>(mut config: Configuration, builders: Vec<A>, others: Box<::std::any::Any>, func: F)
     -> Result<WorkerGuards<T>,String>
     where
-        I: Iterator<Item=String>,
         A: AllocateBuilder+'static,
         T: Send+'static,
         F: Fn(&mut Worker<<A as AllocateBuilder>::Allocator>)->T+Send+Sync+'static {
 
-    let mut config = try!(Configuration::from_args(iter));
     let core_ids = ::core_id::core_ids();
     let worker_core_ids = ::core_id::worker_core_ids(&mut config, core_ids);
 
